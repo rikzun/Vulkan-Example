@@ -1,0 +1,18 @@
+{
+    "cmake.options.advanced": {
+        "build": { "statusBarVisibility": "visible" },
+
+        "buildPreset": { "statusBarVisibility": "hidden" },
+        "buildTarget": { "statusBarVisibility": "hidden" },
+        "ctest": { "statusBarVisibility": "hidden" },
+        "testPreset": { "statusBarVisibility": "hidden" },
+        "launchTarget": { "statusBarVisibility": "hidden" },
+        "debug": { "statusBarVisibility": "hidden" },
+        "workflowPreset": { "statusBarVisibility": "hidden" },
+        "packagePreset": { "statusBarVisibility": "hidden" },
+        "cpack": { "statusBarVisibility": "hidden" }
+    },
+    "clangd.arguments": [
+        "--header-insertion=never"
+    ]
+}
