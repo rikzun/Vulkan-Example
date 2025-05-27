@@ -8,35 +8,15 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Vulkan REQUIRED)
-
-message(NOTICE "🔷 load SDL3")
-FetchContent_MakeAvailable(SDL3)
-message(NOTICE "✅ SDL3 loaded")
-
-message(NOTICE "🔷 load glm")
-FetchContent_MakeAvailable(glm)
-message(NOTICE "✅ glm loaded")
-
-message(NOTICE "🔷 load spdlog")
-FetchContent_MakeAvailable(spdlog)
-message(NOTICE "✅ spdlog loaded")
+find_package(SDL3 REQUIRED)
 
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.cpp")
-file(GLOB_RECURSE PROJECT_HEADER_DIRS "src/*.h")
-
-set(INCLUDE_DIRS "")
-foreach(HEADER ${PROJECT_HEADER_DIRS})
-    get_filename_component(DIR ${HEADER} DIRECTORY)
-    list(APPEND INCLUDE_DIRS ${DIR})
-endforeach()
-list(REMOVE_DUPLICATES INCLUDE_DIRS)
-
 add_executable(Project ${PROJECT_SOURCE_FILES})
-target_include_directories(Project PRIVATE ${INCLUDE_DIRS})
+target_include_directories(Project PRIVATE "src")
 
 target_link_libraries(Project PRIVATE
     Vulkan::Vulkan
-    SDL3::SDL3-static
+    SDL3::SDL3
     glm
     spdlog
 )
@@ -67,4 +47,10 @@ execute_process(
     ${CMAKE_SOURCE_DIR}/compile_commands.json
     RESULT_VARIABLE result
     ERROR_VARIABLE error
+)
+
+add_custom_command(TARGET Project POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:SDL3::SDL3>
+    ${CMAKE_BINARY_DIR}/$<TARGET_FILE_NAME:SDL3::SDL3>
 )

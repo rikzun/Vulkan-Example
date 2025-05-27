@@ -21,6 +21,21 @@
             }
         },
         {
+            "name": "linux-base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/output/${presetName}",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
             "name": "win-debug",
             "displayName": "Win Debug",
             "inherits": "windows-base",
@@ -32,6 +47,22 @@
             "name": "win-release",
             "displayName": "Win Release",
             "inherits": "windows-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "linux-debug",
+            "displayName": "Linux Debug",
+            "inherits": "linux-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "linux-release",
+            "displayName": "Linux Release",
+            "inherits": "linux-base",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
