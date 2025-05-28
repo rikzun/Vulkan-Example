@@ -1,4 +1,5 @@
 #include "render.h"
+#include "render_utils.h"
 
 void Render::createSyncObjects() {
     spdlog::info("Creating Synchronization objects");

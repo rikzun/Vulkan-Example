@@ -1,7 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include <spdlog/spdlog.h>
-#include "render_utils.h"
 
 struct SDL_Window;
 

@@ -24,9 +24,7 @@ int main() {
     Render render(window);
     render.init(windowSize);
 
-    for (bool running = true; running;) {
-        render.draw(windowSize);
-        
+    for (bool running = true; running;) {        
         for (SDL_Event event; SDL_PollEvent(&event);) {
             switch (event.type) {
                 case SDL_EVENT_QUIT: {
@@ -49,6 +47,7 @@ int main() {
             }
         }
 
+        render.draw(windowSize);
         SDL_Delay(16);
     }
 }
