@@ -44,6 +44,11 @@ target_compile_definitions(Project PRIVATE
     VULKAN_HPP_NO_NODISCARD_WARNINGS
 )
 
+target_precompile_headers(Project PRIVATE
+    <vulkan/vulkan.hpp>
+    <spdlog/spdlog.h>
+)
+
 execute_process(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different 
     ${CMAKE_BINARY_DIR}/compile_commands.json
