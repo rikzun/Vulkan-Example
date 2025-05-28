@@ -1,5 +1,7 @@
 #include "render.h"
 #include "render_utils.h"
+#include <unordered_set>
+#include <SDL3/SDL_vulkan.h>
 
 void Render::createInstance() {
     spdlog::info("Creating Instance");

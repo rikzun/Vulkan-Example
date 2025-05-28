@@ -39,6 +39,9 @@ target_compile_definitions(Project PRIVATE
     $<$<BOOL:${WIN32}>:OS_WINDOWS>
     $<$<BOOL:${APPLE}>:OS_MACOS>
     $<$<BOOL:${UNIX}>:OS_LINUX>
+
+    VULKAN_HPP_NO_EXCEPTIONS
+    VULKAN_HPP_NO_NODISCARD_WARNINGS
 )
 
 execute_process(

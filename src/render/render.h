@@ -1,17 +1,9 @@
 #pragma once
-#define VULKAN_HPP_NO_EXCEPTIONS
-#define VULKAN_HPP_NO_NODISCARD_WARNINGS
 #include <vulkan/vulkan.hpp>
-#include <SDL3/SDL_vulkan.h>
-#include <optional>
-#include <unordered_set>
-#include <sstream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <unordered_set>
 #include <spdlog/spdlog.h>
 #include "render_utils.h"
+
+struct SDL_Window;
 
 class Render {
     public:
