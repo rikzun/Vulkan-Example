@@ -1,4 +1,5 @@
 #include "render.h"
+#include <SDL3/SDL_vulkan.h>
 
 void Render::createSurface() {
     spdlog::info("Creating Surface");

@@ -1,6 +1,10 @@
 #include "render.h"
 #include "render_utils.h"
 
+#define ANSI_RED "\e[31m"
+#define ANSI_RESET "\e[m"
+#define LOG_FMT ("[" ANSI_RED "vulkan" ANSI_RESET "] {}")
+
 VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(
 	vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 	vk::DebugUtilsMessageTypeFlagsEXT messageType,
@@ -8,11 +12,11 @@ VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(
 	void* pUserData
 ) {
 	if (messageSeverity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo) {
-		spdlog::info("[{}] {}", spdlog::fmt_lib::format(fg(spdlog::fmt_lib::terminal_color::red), "vulkan"), pCallbackData->pMessage);
+		spdlog::info(LOG_FMT, pCallbackData->pMessage);
 	} else if (messageSeverity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning) {
-		spdlog::warn("[{}] {}", spdlog::fmt_lib::format(fg(spdlog::fmt_lib::terminal_color::red), "vulkan"), pCallbackData->pMessage);
+		spdlog::warn(LOG_FMT, pCallbackData->pMessage);
 	} else if (messageSeverity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eError) {
-		spdlog::error("[{}] {}", spdlog::fmt_lib::format(fg(spdlog::fmt_lib::terminal_color::red), "vulkan"), pCallbackData->pMessage);
+		spdlog::error(LOG_FMT, pCallbackData->pMessage);
 	}
 
 	return vk::False;
