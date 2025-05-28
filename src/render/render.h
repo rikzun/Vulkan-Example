@@ -11,7 +11,6 @@
 #include <fstream>
 #include <unordered_set>
 #include <spdlog/spdlog.h>
-#include <spdlog/fmt/bundled/color.h>
 #include "render_utils.h"
 
 class Render {
@@ -65,7 +64,7 @@ class Render {
         void createRenderPass();
         void createFrameBuffers(vk::Extent2D& windowSize);
         void createSyncObjects();
-        
+
         void createPipeline();
 
         vk::Semaphore m_ImageAvailableSemaphore;
