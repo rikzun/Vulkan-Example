@@ -5,7 +5,7 @@ void Render::createSwapchain(vk::Extent2D& windowSize) {
     spdlog::info("Creating Swapchain");
 
     vk::SurfaceCapabilitiesKHR surfaceCapabilities = VK_ERROR_CHECK(
-        m_PhysicalDevice.getSurfaceCapabilitiesKHR(m_Surface),
+        m_PhysicalDevice.getSurfaceCapabilitiesKHR(m_Surface, m_Dispatcher),
         "Physical Device capabilities getting caused an error"
     );
 
@@ -57,7 +57,7 @@ void Render::createSwapchain(vk::Extent2D& windowSize) {
     }
 
     m_Swapchain = VK_ERROR_CHECK(
-        m_LogicalDevice.createSwapchainKHR(swapchainCreateInfo),
+        m_LogicalDevice.createSwapchainKHR(swapchainCreateInfo, nullptr, m_Dispatcher),
         "Swapchain creating caused an error"
     );
 

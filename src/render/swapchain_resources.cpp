@@ -6,7 +6,7 @@ void Render::selectSwapchainResources() {
     spdlog::info("  Selecting Swapchain Images");
 
     m_SwapchainImages = VK_ERROR_AND_EMPRY_CHECK(
-        m_LogicalDevice.getSwapchainImagesKHR(m_Swapchain),
+        m_LogicalDevice.getSwapchainImagesKHR(m_Swapchain, m_Dispatcher),
         "Swapchain Images getting caused an error",
         "Swapchain Images getting returned no results"
     );

@@ -43,7 +43,8 @@ void Render::draw(vk::Extent2D& windowSize) {
 		m_Swapchain,
 		UINT64_MAX,
 		m_ImageAvailableSemaphore,
-		nullptr
+		nullptr,
+		m_Dispatcher
 	).value;
 	
 	vk::CommandBuffer commandBuffer = m_CommandBuffers[imageIndex];
@@ -102,7 +103,7 @@ void Render::draw(vk::Extent2D& windowSize) {
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = &m_SubmitSemaphore;
-	m_GraphicQueue.presentKHR(presentInfo);
+	m_GraphicQueue.presentKHR(presentInfo, m_Dispatcher);
 
 	m_LogicalDevice.waitForFences(
 		1,

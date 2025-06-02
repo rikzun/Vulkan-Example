@@ -23,10 +23,10 @@ VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(
 }
 
 void Render::createDebugMessenger() {
-    if (!m_DebugLayer) return;
-
-	spdlog::info("Creating Debug Messenger");
 	m_Dispatcher.init(m_Instance, vkGetInstanceProcAddr);
+
+    if (!m_DebugLayer) return;
+	spdlog::info("Creating Debug Messenger");
 
     vk::DebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo {};
 	debugMessengerCreateInfo.pfnUserCallback = debugCallback;

@@ -19,7 +19,7 @@ void Render::selectQueueFamilyIndexes() {
             }
 
             if (queuePresentFamilyIndex == UINT32_MAX) {
-                if (m_PhysicalDevice.getSurfaceSupportKHR(i, m_Surface).result == vk::Result::eSuccess) {
+                if (m_PhysicalDevice.getSurfaceSupportKHR(i, m_Surface, m_Dispatcher).result == vk::Result::eSuccess) {
                     spdlog::info("Present index {}", i);
                     queuePresentFamilyIndex = i;
                 }
