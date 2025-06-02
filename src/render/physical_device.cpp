@@ -56,5 +56,5 @@ void Render::selectPhysicalDevice() {
         return;
     }
 
-    throw std::runtime_error("Suitable physical devise was not found");
+    throw std::runtime_error("Suitable physical device was not found");
 }
