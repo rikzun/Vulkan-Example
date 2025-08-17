@@ -25,8 +25,8 @@ std::vector<char> loadFile(const char* filePath) {
 void Render::createShaderModules() {
 	spdlog::info("Creating Shader Modules");
 
-    std::vector<char> vertexContent = loadFile("../../shaders/basic_vert.spv");
-	std::vector<char> fragmentContent = loadFile("../../shaders/basic_frag.spv");
+    std::vector<char> vertexContent = loadFile("shaders/basic.vert");
+	std::vector<char> fragmentContent = loadFile("shaders/basic.frag");
 
 	vk::ShaderModuleCreateInfo vertexInfo {};
 	vertexInfo.codeSize = vertexContent.size();

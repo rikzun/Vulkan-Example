@@ -8,7 +8,7 @@
             "binaryDir": "${sourceDir}/output/${presetName}",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang"
+                "CMAKE_CXX_COMPILER": "clang++"
             },
             "architecture": {
                 "value": "x64",
@@ -27,7 +27,7 @@
             "binaryDir": "${sourceDir}/output/${presetName}",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang"
+                "CMAKE_CXX_COMPILER": "clang++"
             },
             "condition": {
                 "type": "equals",

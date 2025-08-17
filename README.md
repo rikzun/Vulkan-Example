@@ -36,10 +36,9 @@ cmake --build --preset win-debug (or win-release)
 
 All build artifacts will be placed in the `output/<preset>` directory.
 
-#### Notes
+## Notes
 
-- On Windows, run from the directory with the executable so shaders can be found.
-- If the app does not start, ensure you have the Vulkan SDK and up-to-date GPU drivers.
+If the app does not start, ensure you have the Vulkan SDK and up-to-date GPU drivers.
 
 ## How to Contribute
 

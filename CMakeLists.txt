@@ -1,28 +1,32 @@
 ﻿cmake_minimum_required(VERSION 3.29)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project(Project VERSION 0.0.1)
-include(CMakeDeps.cmake)
-
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Vulkan REQUIRED)
-find_package(SDL3 REQUIRED)
+project(Project VERSION 0.0.1)
+include(CMakeDeps.cmake)
 
-file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.cpp")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+file(GLOB_RECURSE PROJECT_SOURCE_FILES CONFIGURE_DEPENDS "src/*.cpp")
 add_executable(Project ${PROJECT_SOURCE_FILES})
-target_include_directories(Project PRIVATE "src")
+target_sources(Project PRIVATE ${PROJECT_SOURCE_FILES})
 
-target_link_libraries(Project PRIVATE
+target_link_libraries(Project PUBLIC
     Vulkan::Vulkan
     SDL3::SDL3
     glm
     spdlog
 )
 
-if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND WIN32)
-    set_target_properties(Project PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+if(WIN32)
+    target_link_options(Project PRIVATE
+        $<$<NOT:$<CONFIG:Debug>>:LINKER:/SUBSYSTEM:WINDOWS LINKER:/ENTRY:mainCRTStartup>
+    )
+endif()
+
+if(UNIX)
+    target_link_libraries(Project PRIVATE m)
 endif()
 
 target_compile_definitions(Project PRIVATE
@@ -49,16 +53,41 @@ target_precompile_headers(Project PRIVATE
     <spdlog/spdlog.h>
 )
 
+set(COMPILED_SHADERS "")
+set(PROJECT_SHADER_FOLDER "${PROJECT_SOURCE_DIR}/src/shaders")
+file(GLOB_RECURSE SHADER_FILES CONFIGURE_DEPENDS "${PROJECT_SHADER_FOLDER}/*")
+
+foreach(SHADER_FILE ${SHADER_FILES})
+    get_filename_component(SHADER_NAME ${SHADER_FILE} NAME)
+    get_filename_component(SHADER_DIR ${SHADER_FILE} DIRECTORY)
+
+    if (SHADER_DIR STREQUAL PROJECT_SHADER_FOLDER)
+        set(SHADER_OUTPUT "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders/${SHADER_NAME}")
+    else()
+        string(REPLACE "${PROJECT_SHADER_FOLDER}/" "" SHADER_NESTED_FOLDERS ${SHADER_DIR})
+        set(SHADER_OUTPUT "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders/${SHADER_NESTED_FOLDERS}/${SHADER_NAME}")
+    endif()
+
+    add_custom_command(
+        OUTPUT ${SHADER_OUTPUT}
+        COMMAND glslc ${SHADER_FILE} -o ${SHADER_OUTPUT}
+        DEPENDS ${SHADER_FILE}
+    )
+
+    list(APPEND COMPILED_SHADERS ${SHADER_OUTPUT})
+endforeach()
+
+add_custom_target(Shaders ALL DEPENDS ${COMPILED_SHADERS})
+add_dependencies(Project Shaders)
+
 execute_process(
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-    ${CMAKE_BINARY_DIR}/compile_commands.json
-    ${CMAKE_SOURCE_DIR}/compile_commands.json
-    RESULT_VARIABLE result
-    ERROR_VARIABLE error
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${PROJECT_SOURCE_DIR}/compile_commands.json
+    ${PROJECT_BINARY_DIR}/compile_commands.json
 )
 
 add_custom_command(TARGET Project POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:SDL3::SDL3>
-    ${CMAKE_BINARY_DIR}/$<TARGET_FILE_NAME:SDL3::SDL3>
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<TARGET_FILE_NAME:SDL3::SDL3>
 )

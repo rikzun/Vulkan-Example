@@ -3,13 +3,14 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include "render/render.h"
+#include <spdlog/fmt/bundled/color.h>
 
 int main() {
-    auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs.txt", true);
-    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs.txt", true);
+    auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
-    spdlog::logger logger("main", { file_sink, console_sink });
-    spdlog::set_default_logger(std::make_shared<spdlog::logger>(logger));
+    spdlog::logger mainLogger("main", { fileSink, consoleSink });
+    spdlog::set_default_logger(std::make_shared<spdlog::logger>(mainLogger));
     spdlog::set_pattern("[%H:%M:%S.%e] [%^%l%$] %v");
     spdlog::flush_every(std::chrono::seconds(1));
 
