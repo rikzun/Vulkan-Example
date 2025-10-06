@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.29)
+﻿cmake_minimum_required(VERSION 3.28)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -82,8 +82,8 @@ add_dependencies(Project Shaders)
 
 execute_process(
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${PROJECT_SOURCE_DIR}/compile_commands.json
     ${PROJECT_BINARY_DIR}/compile_commands.json
+    ${PROJECT_SOURCE_DIR}/compile_commands.json
 )
 
 add_custom_command(TARGET Project POST_BUILD
