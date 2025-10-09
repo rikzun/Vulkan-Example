@@ -7,7 +7,7 @@ Thank you for your interest in contributing!
 1. **Fork** the repository and create a new branch for your changes.
 2. **Clone** your fork:
    ```sh
-   git clone https://github.com/<your-username>/Vulkan-Example.git
+   git clone https://github.com/rikzun/Vulkan-Example.git
    cd Vulkan-Example
    ```
 3. Make sure your code follows the project’s code style (see below).
