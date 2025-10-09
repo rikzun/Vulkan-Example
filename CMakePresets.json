@@ -1,5 +1,10 @@
-﻿{
+{
     "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28,
+        "patch": 0
+    },
     "configurePresets": [
         {
             "name": "windows-base",
@@ -7,17 +12,13 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/output/${presetName}",
             "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "Windows",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++"
             },
             "architecture": {
                 "value": "x64",
                 "strategy": "external"
-            },
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Windows"
             }
         },
         {
@@ -26,13 +27,9 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/output/${presetName}",
             "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "Linux",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++"
-            },
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Linux"
             }
         },
         {
@@ -67,5 +64,23 @@
                 "CMAKE_BUILD_TYPE": "Release"
             }
         }
-    ]
+    ],
+    "buildPresets": [
+        {
+            "name": "win-debug",
+            "configurePreset": "win-debug"
+        },
+        {
+            "name": "win-release",
+            "configurePreset": "win-release"
+        },
+        {
+            "name": "linux-debug",
+            "configurePreset": "linux-debug"
+        },
+        {
+            "name": "linux-release",
+            "configurePreset": "linux-release"
+        }
+    ]      
 }
