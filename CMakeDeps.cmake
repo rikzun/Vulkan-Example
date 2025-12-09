@@ -2,9 +2,10 @@ option(FETCHCONTENT_QUIET "" OFF)
 option(FETCHCONTENT_UPDATES_DISCONNECTED "" ON)
 include(FetchContent)
 
-set(SDL_VERSION 3.2.20)
-set(GLM_VERSION 1.0.1)
-set(SPDLOG_VERSION 1.15.3)
+set(SDL_VERSION 3.2.28)
+set(GLM_VERSION 1.0.2)
+set(SPDLOG_VERSION 1.16.0)
+set(TRACY_VERSION 0.13.0)
 
 if(WIN32)
     if(MINGW)
@@ -23,7 +24,7 @@ FetchContent_Declare(
 
 FetchContent_Declare(
     glm
-    URL https://github.com/g-truc/glm/releases/download/${GLM_VERSION}/glm-${GLM_VERSION}-light.7z
+    URL https://github.com/g-truc/glm/releases/download/${GLM_VERSION}/glm-${GLM_VERSION}.7z
 )
 
 FetchContent_Declare(
@@ -31,26 +32,17 @@ FetchContent_Declare(
     URL https://github.com/gabime/spdlog/archive/refs/tags/v${SPDLOG_VERSION}.tar.gz
 )
 
-function(try_to_find_package name version)
-    find_package(${name} ${version} QUIET)
-    return(PROPAGATE "${name}_FOUND")
-endfunction()
+FetchContent_Declare(
+    tracy
+    URL https://github.com/wolfpld/tracy/archive/refs/tags/v${TRACY_VERSION}.zip
+)
 
-try_to_find_package(SDL3 ${SDL_VERSION})
-if(NOT SDL3_FOUND)
-    FetchContent_MakeAvailable(sdl3)
-    set(SDL3_DIR "${sdl3_SOURCE_DIR}/cmake")
-endif()
+FetchContent_MakeAvailable(sdl3)
+FetchContent_MakeAvailable(glm)
+FetchContent_MakeAvailable(spdlog)
+FetchContent_MakeAvailable(tracy)
 
-try_to_find_package(glm ${GLM_VERSION})
-if(NOT glm_FOUND)
-    FetchContent_MakeAvailable(glm)
-endif()
-
-try_to_find_package(spdlog ${SPDLOG_VERSION})
-if(NOT spdlog_FOUND)
-    FetchContent_MakeAvailable(spdlog)
-endif()
+set(SDL3_DIR "${sdl3_SOURCE_DIR}/cmake")
 
 find_package(Vulkan REQUIRED)
 find_package(SDL3 REQUIRED)

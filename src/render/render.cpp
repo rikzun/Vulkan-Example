@@ -1,4 +1,5 @@
 #include "render.h"
+#include <SDL3/SDL.h>
 
 Render::Render(SDL_Window* window) { m_Window = window; }
 Render::~Render() {}
@@ -39,14 +40,31 @@ void Render::resize(vk::Extent2D& newWindowSize) {
 }
 
 void Render::draw(vk::Extent2D& windowSize) {
-	uint32_t imageIndex = m_LogicalDevice.acquireNextImageKHR(
+	int width;
+	int height;
+	SDL_GetWindowSizeInPixels(m_Window, &width, &height);
+
+	vk::Extent2D newWindowSize {
+		static_cast<uint32_t>(width),
+		static_cast<uint32_t>(height)
+	};
+
+	if (windowSize != newWindowSize) {
+		spdlog::warn("new window size aquired before sdl event loop: w{} h{}", newWindowSize.width, newWindowSize.height);
+	}
+
+	vk::ResultValue<uint32_t> imageIndexResult = m_LogicalDevice.acquireNextImageKHR(
 		m_Swapchain,
 		UINT64_MAX,
 		m_ImageAvailableSemaphore,
 		nullptr,
 		m_Dispatcher
-	).value;
-	
+	);
+
+	spdlog::warn(vk::to_string(imageIndexResult.result));
+
+	uint32_t imageIndex = imageIndexResult.value;
+
 	vk::CommandBuffer commandBuffer = m_CommandBuffers[imageIndex];
 	vk::Image image = m_SwapchainImages[imageIndex];
 
@@ -67,11 +85,15 @@ void Render::draw(vk::Extent2D& windowSize) {
 	commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
 	vk::Rect2D scissor {};
+	scissor.offset = vk::Offset2D { 0,0 };
 	scissor.extent = windowSize;
 
 	vk::Viewport viewport {};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
 	viewport.width = windowSize.width;
 	viewport.height = windowSize.height;
+	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
 	commandBuffer.setScissor(0, 1, &scissor);

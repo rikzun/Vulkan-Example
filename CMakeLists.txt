@@ -19,6 +19,9 @@ target_link_libraries(Project PUBLIC
     spdlog
 )
 
+target_include_directories(Project PRIVATE ${tracy_SOURCE_DIR}/public/tracy)
+target_sources(Project PRIVATE ${tracy_SOURCE_DIR}/public/TracyClient.cpp)
+
 if(WIN32)
     target_link_options(Project PRIVATE
         $<$<NOT:$<CONFIG:Debug>>:LINKER:/SUBSYSTEM:WINDOWS LINKER:/ENTRY:mainCRTStartup>
@@ -46,6 +49,9 @@ target_compile_definitions(Project PRIVATE
 
     VULKAN_HPP_NO_EXCEPTIONS
     VULKAN_HPP_NO_NODISCARD_WARNINGS
+
+    $<$<CONFIG:Debug>:TRACY_ENABLE>
+    $<$<CONFIG:Debug>:TRACY_ONLY_LOCALHOST>
 )
 
 target_precompile_headers(Project PRIVATE
