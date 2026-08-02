@@ -26,6 +26,7 @@ void Render::createSwapchain(vk::Extent2D& windowSize) {
             std::max(surfaceCapabilities.minImageExtent.height, windowSize.height)
         );
     }
+    m_Extent = extent;
 
     vk::SwapchainCreateInfoKHR swapchainCreateInfo {};
     swapchainCreateInfo.surface = m_Surface;
@@ -37,7 +38,8 @@ void Render::createSwapchain(vk::Extent2D& windowSize) {
     swapchainCreateInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;
     swapchainCreateInfo.preTransform = surfaceCapabilities.currentTransform;
     swapchainCreateInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
-    swapchainCreateInfo.presentMode = vk::PresentModeKHR::eMailbox;
+    swapchainCreateInfo.presentMode = vk::PresentModeKHR::eFifo;
+    // swapchainCreateInfo.presentMode = vk::PresentModeKHR::eMailbox;
     swapchainCreateInfo.clipped = vk::True;
     swapchainCreateInfo.oldSwapchain = m_Swapchain;
 

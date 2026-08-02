@@ -1,12 +1,12 @@
 #include "render.h"
 #include "render_utils.h"
 
-void Render::createFrameBuffers(vk::Extent2D& windowSize) {
+void Render::createFrameBuffers() {
     spdlog::info("Creating Frame Buffers");
 
     vk::FramebufferCreateInfo frameBufferCreateInfo {};
-    frameBufferCreateInfo.height = windowSize.height;
-    frameBufferCreateInfo.width = windowSize.width;
+    frameBufferCreateInfo.height = m_Extent.height;
+    frameBufferCreateInfo.width = m_Extent.width;
     frameBufferCreateInfo.renderPass = m_RenderPass;
     frameBufferCreateInfo.layers = 1;
     frameBufferCreateInfo.attachmentCount = 1;

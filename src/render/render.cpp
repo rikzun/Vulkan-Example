@@ -15,13 +15,13 @@ void Render::init(vk::Extent2D& windowSize) {
         Render::selectQueueFamilyIndexes();
         Render::createLogicalDevice();
         Render::createShaderModules();
-        Render::createSyncObjects();
         Render::createSwapchain(windowSize);
         Render::selectSwapchainResources();
+        Render::createSyncObjects();
         Render::createCommandPool();
         Render::createCommandBuffers();
         Render::createRenderPass();
-        Render::createFrameBuffers(windowSize);
+        Render::createFrameBuffers();
         Render::createPipeline();
     } catch(const std::runtime_error& error) {
         spdlog::error("Vulkan init error: {}", error.what());
@@ -30,10 +30,41 @@ void Render::init(vk::Extent2D& windowSize) {
 
 void Render::resize(vk::Extent2D& newWindowSize) {
     try {
+		m_LogicalDevice.waitIdle();
+
+		for (auto& fb : m_FrameBuffers) {
+			m_LogicalDevice.destroyFramebuffer(fb);
+		}
+    	m_FrameBuffers.clear();
+
+		for (auto& iv : m_SwapchainImagesViews) {
+			m_LogicalDevice.destroyImageView(iv);
+		}
+    	m_SwapchainImagesViews.clear();
+		m_SwapchainImages.clear();
+
+		if (!m_CommandBuffers.empty()) {
+			m_LogicalDevice.freeCommandBuffers(m_CommandPool, m_CommandBuffers);
+			m_CommandBuffers.clear();
+		}
+
+		for (auto& sem : m_SubmitSemaphores) {
+			m_LogicalDevice.destroySemaphore(sem);
+		}
+		m_SubmitSemaphores.clear();
+
+		vk::SwapchainKHR oldSwapchain = m_Swapchain;
+
         Render::createSwapchain(newWindowSize);
+
+		if (oldSwapchain) {
+			m_LogicalDevice.destroySwapchainKHR(oldSwapchain, nullptr, m_Dispatcher);
+		}
+
         Render::selectSwapchainResources();
         Render::createCommandBuffers();
-        Render::createFrameBuffers(newWindowSize);
+        Render::createFrameBuffers();
+		spdlog::info("resized");
     } catch(const std::runtime_error& error) {
         spdlog::error("Vulkan resize error: {}", error.what());
     }
@@ -53,17 +84,31 @@ void Render::draw(vk::Extent2D& windowSize) {
 		spdlog::warn("new window size aquired before sdl event loop: w{} h{}", newWindowSize.width, newWindowSize.height);
 	}
 
-	vk::ResultValue<uint32_t> imageIndexResult = m_LogicalDevice.acquireNextImageKHR(
+	if (newWindowSize.width == 0 || newWindowSize.height == 0) {
+        return;
+    }
+
+	m_LogicalDevice.waitForFences(1, &m_RenderFinishedFence, vk::True, UINT64_MAX);
+    m_LogicalDevice.resetFences(1, &m_RenderFinishedFence);
+
+	uint32_t imageIndex;
+	vk::Result acquireResult = m_LogicalDevice.acquireNextImageKHR(
 		m_Swapchain,
 		UINT64_MAX,
 		m_ImageAvailableSemaphore,
 		nullptr,
+		&imageIndex,
 		m_Dispatcher
 	);
 
-	spdlog::warn(vk::to_string(imageIndexResult.result));
-
-	uint32_t imageIndex = imageIndexResult.value;
+	if (acquireResult == vk::Result::eErrorOutOfDateKHR) {
+        resize(m_Extent);
+        return;
+    }
+    if (acquireResult == vk::Result::eSuboptimalKHR) {
+        resize(m_Extent);
+        return;
+    }
 
 	vk::CommandBuffer commandBuffer = m_CommandBuffers[imageIndex];
 	vk::Image image = m_SwapchainImages[imageIndex];
@@ -77,7 +122,7 @@ void Render::draw(vk::Extent2D& windowSize) {
 
 	vk::RenderPassBeginInfo renderPassBeginInfo {};
 	renderPassBeginInfo.renderPass = m_RenderPass;
-	renderPassBeginInfo.renderArea.extent = windowSize;
+	renderPassBeginInfo.renderArea.extent = m_Extent;
 	renderPassBeginInfo.framebuffer = m_FrameBuffers[imageIndex];
 	renderPassBeginInfo.clearValueCount = 1;
 	renderPassBeginInfo.pClearValues = &clearValue;
@@ -86,13 +131,13 @@ void Render::draw(vk::Extent2D& windowSize) {
 
 	vk::Rect2D scissor {};
 	scissor.offset = vk::Offset2D { 0,0 };
-	scissor.extent = windowSize;
+	scissor.extent = m_Extent;
 
 	vk::Viewport viewport {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = windowSize.width;
-	viewport.height = windowSize.height;
+	viewport.width = m_Extent.width;
+	viewport.height = m_Extent.height;
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
@@ -105,7 +150,7 @@ void Render::draw(vk::Extent2D& windowSize) {
 	commandBuffer.endRenderPass();
 	commandBuffer.end();
 
-	m_LogicalDevice.resetFences(m_RenderFinishedFence);
+	vk::Semaphore submitSemaphores = m_SubmitSemaphores[imageIndex];
 
 	vk::PipelineStageFlags waitStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 
@@ -113,7 +158,7 @@ void Render::draw(vk::Extent2D& windowSize) {
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = &m_SubmitSemaphore;
+	submitInfo.pSignalSemaphores = &submitSemaphores;
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphore;
 	submitInfo.pWaitDstStageMask = &waitStage;
@@ -124,13 +169,11 @@ void Render::draw(vk::Extent2D& windowSize) {
 	presentInfo.pSwapchains = &m_Swapchain;
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = &m_SubmitSemaphore;
-	m_GraphicQueue.presentKHR(presentInfo, m_Dispatcher);
+	presentInfo.pWaitSemaphores = &submitSemaphores;
 
-	m_LogicalDevice.waitForFences(
-		1,
-		&m_RenderFinishedFence,
-		vk::True,
-		UINT32_MAX
-	);
+	vk::Result presentResult = m_GraphicQueue.presentKHR(&presentInfo, m_Dispatcher);
+	if (presentResult == vk::Result::eErrorOutOfDateKHR || presentResult == vk::Result::eSuboptimalKHR) {
+		resize(m_Extent);
+		return;
+	}
 }

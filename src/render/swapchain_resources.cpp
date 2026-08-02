@@ -34,5 +34,22 @@ void Render::selectSwapchainResources() {
     }
 
     m_SwapchainImagesViews = swapchainImagesViews;
+
+    std::vector<vk::Semaphore> submitSemaphores {};
+    submitSemaphores.reserve(m_SwapchainImages.size());
+
+    for (size_t i = 0; i < m_SwapchainImages.size(); ++i) {
+        m_LogicalDevice.createSemaphore(vk::SemaphoreCreateInfo {});
+
+        vk::Semaphore semaphore = VK_ERROR_CHECK(
+            m_LogicalDevice.createSemaphore(vk::SemaphoreCreateInfo {}),
+            "Submit Semaphore creating caused an error"
+        );
+
+        submitSemaphores.push_back(semaphore);
+    }
+
+    m_SubmitSemaphores = submitSemaphores;
+
     spdlog::info("Swapchain Resources selected successfully");
 }

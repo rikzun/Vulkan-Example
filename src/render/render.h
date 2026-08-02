@@ -18,6 +18,8 @@ class Render {
         vk::detail::DispatchLoaderDynamic m_Dispatcher;
         vk::DebugUtilsMessengerEXT m_DebugMessenger;
 
+        vk::Extent2D m_Extent;
+
         SDL_Window* m_Window;
         vk::Instance m_Instance;
         vk::SurfaceKHR m_Surface;
@@ -49,16 +51,16 @@ class Render {
         void createLogicalDevice();
         void createSwapchain(vk::Extent2D& windowSize);
         void selectSwapchainResources();
+        void createSyncObjects();
         void createShaderModules();
         void createCommandPool();
         void createCommandBuffers();
         void createRenderPass();
-        void createFrameBuffers(vk::Extent2D& windowSize);
-        void createSyncObjects();
+        void createFrameBuffers();
 
         void createPipeline();
 
         vk::Semaphore m_ImageAvailableSemaphore;
-        vk::Semaphore m_SubmitSemaphore;
+        std::vector<vk::Semaphore> m_SubmitSemaphores;
         vk::Fence m_RenderFinishedFence;
 };

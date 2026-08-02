@@ -42,7 +42,23 @@ FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(spdlog)
 FetchContent_MakeAvailable(tracy)
 
-set(SDL3_DIR "${sdl3_SOURCE_DIR}/cmake")
-
-find_package(Vulkan REQUIRED)
-find_package(SDL3 REQUIRED)
+if(WIN32)
+    set(SDL3_DIR "${sdl3_SOURCE_DIR}/cmake")
+    find_package(SDL3 REQUIRED)
+    find_package(Vulkan REQUIRED)
+else()
+    set(VULKAN_HEADERS_VERSION 1.4.321)
+ 
+    FetchContent_Declare(
+        vulkan_headers
+        URL https://github.com/KhronosGroup/Vulkan-Headers/archive/refs/tags/v${VULKAN_HEADERS_VERSION}.tar.gz
+    )
+    FetchContent_MakeAvailable(vulkan_headers)
+ 
+    find_library(VULKAN_LIB vulkan REQUIRED)
+    add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
+    set_target_properties(Vulkan::Vulkan PROPERTIES
+        IMPORTED_LOCATION ${VULKAN_LIB}
+        INTERFACE_INCLUDE_DIRECTORIES ""
+    )
+endif()

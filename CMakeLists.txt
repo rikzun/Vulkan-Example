@@ -12,6 +12,12 @@ file(GLOB_RECURSE PROJECT_SOURCE_FILES CONFIGURE_DEPENDS "src/*.cpp")
 add_executable(Project ${PROJECT_SOURCE_FILES})
 target_sources(Project PRIVATE ${PROJECT_SOURCE_FILES})
 
+if(NOT WIN32)
+    target_include_directories(Project BEFORE PRIVATE
+        ${vulkan_headers_SOURCE_DIR}/include
+    )
+endif()
+
 target_link_libraries(Project PUBLIC
     Vulkan::Vulkan
     SDL3::SDL3
@@ -39,7 +45,7 @@ target_compile_definitions(Project PRIVATE
     PROJECT_VERSION_PATCH=${PROJECT_VERSION_PATCH}
     PROJECT_VK_VERSION_MAJOR=1
     PROJECT_VK_VERSION_MINOR=3
-    PROJECT_VK_VERSION_PATCH=204
+    PROJECT_VK_VERSION_PATCH=290
 
     $<$<CONFIG:Debug>:DEBUG_BUILD>
     $<$<NOT:$<CONFIG:Debug>>:RELEASE_BUILD>

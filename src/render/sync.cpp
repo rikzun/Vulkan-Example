@@ -9,10 +9,17 @@ void Render::createSyncObjects() {
         "Image Available Semaphore creating caused an error"
     );
 
-    m_SubmitSemaphore = VK_ERROR_CHECK(
-        m_LogicalDevice.createSemaphore(vk::SemaphoreCreateInfo {}),
-        "Submit Semaphore creating caused an error"
-    );
+    // m_SubmitSemaphores.resize(m_SwapchainImages.size());
+    // for (vk::Image& image : m_SwapchainImages) {
+    //     m_LogicalDevice.createSemaphore(vk::SemaphoreCreateInfo {});
+
+    //     vk::Semaphore semaphore = VK_ERROR_CHECK(
+    //         m_LogicalDevice.createSemaphore(vk::SemaphoreCreateInfo {}),
+    //         "Submit Semaphore creating caused an error"
+    //     );
+
+    //     m_SubmitSemaphores.push_back(semaphore);
+    // }
 
     vk::FenceCreateInfo fenceCreateInfo {};
     fenceCreateInfo.flags = vk::FenceCreateFlagBits::eSignaled;
