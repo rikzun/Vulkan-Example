@@ -89,7 +89,6 @@ void Render::draw(vk::Extent2D& windowSize) {
     }
 
 	m_LogicalDevice.waitForFences(1, &m_RenderFinishedFence, vk::True, UINT64_MAX);
-    m_LogicalDevice.resetFences(1, &m_RenderFinishedFence);
 
 	uint32_t imageIndex;
 	vk::Result acquireResult = m_LogicalDevice.acquireNextImageKHR(
@@ -100,6 +99,10 @@ void Render::draw(vk::Extent2D& windowSize) {
 		&imageIndex,
 		m_Dispatcher
 	);
+
+	if (acquireResult != vk::Result::eSuccess) {
+		spdlog::info("{}", vk::to_string(acquireResult));
+	}
 
 	if (acquireResult == vk::Result::eErrorOutOfDateKHR) {
         resize(m_Extent);
@@ -150,6 +153,8 @@ void Render::draw(vk::Extent2D& windowSize) {
 	commandBuffer.endRenderPass();
 	commandBuffer.end();
 
+    m_LogicalDevice.resetFences(1, &m_RenderFinishedFence);
+
 	vk::Semaphore submitSemaphores = m_SubmitSemaphores[imageIndex];
 
 	vk::PipelineStageFlags waitStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
@@ -172,6 +177,10 @@ void Render::draw(vk::Extent2D& windowSize) {
 	presentInfo.pWaitSemaphores = &submitSemaphores;
 
 	vk::Result presentResult = m_GraphicQueue.presentKHR(&presentInfo, m_Dispatcher);
+
+	if (presentResult != vk::Result::eSuccess) {
+		spdlog::info("{}", vk::to_string(acquireResult));
+	}
 	if (presentResult == vk::Result::eErrorOutOfDateKHR || presentResult == vk::Result::eSuboptimalKHR) {
 		resize(m_Extent);
 		return;
